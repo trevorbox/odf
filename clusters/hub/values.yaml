@@ -43,7 +43,7 @@ applications:
     destination:
       namespace: open-cluster-management
     source:
-      path: clusters/hub/overlays/klusterletaddonconfig
+      path: components/klusterletaddonconfig
 
   submariner:
     annotations:
