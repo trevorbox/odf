@@ -84,12 +84,13 @@ Once you have a copy of this repo in your organization, you have to seed your Hu
 To do so you can simply run this commands, however you might want to implement these steps in different ways in your environment:
 
 ```sh
-export gitops_repo=<your newly created repo>
-export cluster_name=<your hub cluster name, typically "hub">
+export gitops_repo=https://github.com/trevorbox/odf.git
+export cluster_name=hub
 export cluster_base_domain=$(oc get ingress.config.openshift.io cluster --template={{.spec.domain}} | sed -e "s/^apps.//")
 export platform_base_domain=${cluster_base_domain#*.}
-oc apply -f .bootstrap/subscription.yaml
 oc apply -f .bootstrap/cluster-rolebinding.yaml
+helm repo add redhat-cop https://redhat-cop.github.io/helm-charts
+helm upgrade -i openshift-gitops redhat-cop/operators-installer -f .bootstrap/values.yaml -n openshift-operators --create-namespace
 sleep 60
 envsubst < .bootstrap/argocd.yaml | oc apply -f -
 sleep 30
