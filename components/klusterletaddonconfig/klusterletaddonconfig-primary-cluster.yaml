@@ -7,8 +7,8 @@ spec:
   clusterName: primary-cluster
   clusterNamespace: primary-cluster
   clusterLabels:
-    cloud: auto-detect
-    vendor: auto-detect
+    # cloud: auto-detect
+    # vendor: auto-detect
     cluster.open-cluster-management.io/clusterset: aro-clusters
   applicationManager:
     enabled: true
