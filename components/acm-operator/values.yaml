@@ -1,0 +1,20 @@
+installRequiredPythonLibraries: false
+approveManualInstallPlanViaHook: true
+
+installPlanApproverAndVerifyJobsImage: quay.io/trevorbox/installplanapproverandverifier:4.16.0 # quay.io/openshift/origin-cli:4.16
+
+operatorGroups:
+- name: open-cluster-management
+  createNamespace: false
+  otherTargetNamespaces:
+    - open-cluster-management
+
+operators:
+- channel: release-2.17
+  installPlanApproval: Manual
+  name: advanced-cluster-management
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  csv: advanced-cluster-management.v2.17.3
+  namespace: open-cluster-management
+  installPlanVerifierActiveDeadlineSeconds: 1200

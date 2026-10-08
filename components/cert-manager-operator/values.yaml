@@ -1,0 +1,19 @@
+installRequiredPythonLibraries: false
+approveManualInstallPlanViaHook: true
+
+installPlanApproverAndVerifyJobsImage: quay.io/trevorbox/installplanapproverandverifier:4.16.0 # quay.io/openshift/origin-cli:4.16
+
+operatorGroups:
+- name: cert-manager-operator
+  targetOwnNamespace: true
+  createNamespace: true
+
+operators:
+- channel: stable-v1
+  installPlanApproval: Manual
+  name: openshift-cert-manager-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  csv: cert-manager-operator.v1.20.1
+  namespace: cert-manager-operator
+  installPlanVerifierActiveDeadlineSeconds: 1200

@@ -1,0 +1,22 @@
+installRequiredPythonLibraries: false
+approveManualInstallPlanViaHook: true
+
+installPlanApproverAndVerifyJobsImage: quay.io/trevorbox/installplanapproverandverifier:4.16.0 # quay.io/openshift/origin-cli:4.16
+
+operatorGroups:
+- name: openshift-gitops-operator
+  createNamespace: true
+
+operators:
+- channel: latest
+  installPlanApproval: Manual
+  name: openshift-gitops-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  csv: openshift-gitops-operator.v1.22.0
+  namespace: openshift-gitops-operator
+  installPlanVerifierActiveDeadlineSeconds: 1200
+  config:
+    env:
+    - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
+      value: "false" # note: if this were true, every time the operator restarts it will delete the "openshift-gitops" argocd instnce in openshift-gitops
