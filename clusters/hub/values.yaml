@@ -26,3 +26,12 @@ applications:
       namespace: odf-multicluster-orchestrator
     source:
       path: clusters/hub/overlays/odf-multicluster-orchestrator
+
+  managedclusterset:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '30'
+    destination:
+      namespace: open-cluster-management
+    source:
+      path: clusters/hub/overlays/managedclusterset

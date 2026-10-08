@@ -1,0 +1,6 @@
+apiVersion: cluster.open-cluster-management.io/v1
+kind: ManagedCluster
+metadata:
+  name: secondary-cluster
+  labels:
+    cluster.open-cluster-management.io/clusterset: aro-clusters

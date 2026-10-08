@@ -1,0 +1,6 @@
+apiVersion: clusterview.open-cluster-management.io/v1alpha1
+kind: ManagedClusterSet
+metadata:
+  name: odf-clusters
+  clusterSelector:
+    selectorType: ExclusiveClusterSetLabel
