@@ -1,0 +1,8 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ./submarinerconfig-submariner.yaml
+- ./broker-submariner-broker.yaml
+- ./managedclusteraddon-submariner-primary.yaml
+- ./managedclusteraddon-submariner-secondary.yaml 

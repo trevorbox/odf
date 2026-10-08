@@ -1,0 +1,22 @@
+apiVersion: agent.open-cluster-management.io/v1
+kind: KlusterletAddonConfig
+metadata:
+  name: secondary-cluster
+  namespace: secondary-cluster
+spec:
+  clusterName: secondary-cluster
+  clusterNamespace: secondary-cluster
+  clusterLabels:
+    cloud: auto-detect
+    vendor: auto-detect
+    cluster.open-cluster-management.io/clusterset: aro-clusters
+  applicationManager:
+    enabled: true
+  policyController:
+    enabled: true
+  searchCollector:
+    enabled: true
+  certPolicyController:
+    enabled: true
+  iamPolicyController:
+    enabled: true
