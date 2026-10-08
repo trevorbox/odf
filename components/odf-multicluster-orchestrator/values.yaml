@@ -6,8 +6,6 @@ installPlanApproverAndVerifyJobsImage: quay.io/trevorbox/installplanapproverandv
 operatorGroups:
 - name: odf-multicluster-orchestrator
   createNamespace: true
-  otherTargetNamespaces:
-    - odf-multicluster-orchestrator
 
 operators:
 - channel: stable-4.20
