@@ -35,3 +35,21 @@ applications:
       namespace: open-cluster-management
     source:
       path: clusters/hub/overlays/managedclusterset
+
+  klusterletaddonconfig:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '40'
+    destination:
+      namespace: open-cluster-management
+    source:
+      path: clusters/hub/overlays/klusterletaddonconfig
+
+  submariner:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '50'
+    destination:
+      namespace: open-cluster-management
+    source:
+      path: components/submariner
