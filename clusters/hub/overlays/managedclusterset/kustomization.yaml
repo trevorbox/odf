@@ -5,9 +5,12 @@ resources:
   - ../../../../components/managedclusterset/
 
 patches:
-  - path: ./patch-managedclusterset.yaml
-    target:
+  - target:
       kind: ManagedClusterSet
       name: odf-clusters
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: aro-clusters
   - path: ./patch-managedcluster-primary-cluster.yaml
   - path: ./patch-managedcluster-secondary-cluster.yaml
