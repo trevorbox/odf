@@ -1,0 +1,12 @@
+apiVersion: submarineraddon.open-cluster-management.io/v1alpha1
+kind: SubmarinerConfig
+metadata:
+  name: submariner
+  namespace: secondary-cluster
+spec:
+  IPSecNATTPort: 4500
+  NATTEnable: true
+  cableDriver: libreswan
+  loadBalancerEnable: true
+  gatewayConfig:
+    gateways: 1
