@@ -35,6 +35,12 @@ applications:
       namespace: open-cluster-management
     source:
       path: clusters/hub/overlays/managedclusterset
+    ignoreDifferences:
+      - group: apps
+        kind: ManagedCluster
+        jsonPointers:
+          - /metadata/labels/vendor
+          - /metadata/labels/cloud
 
   klusterletaddonconfig:
     annotations:
