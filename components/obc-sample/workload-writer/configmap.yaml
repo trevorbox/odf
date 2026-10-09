@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: s3-client
+data:
+  s3.js: |
+    const crypto = require('crypto');
+    const https = require('https');
+    const accessKey = process.env.AWS_ACCESS_KEY_ID;
+    const secretKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const host = process.env.S3_HOST;
+    const bucket = process.env.BUCKET;
+    const key = process.env.KEY;
+    const method = process.env.METHOD || 'PUT';
+    const body = method === 'GET' ? '' : (process.env.BODY || '');
+    const hmac = (k, s) => crypto.createHmac('sha256', k).update(s).digest();
+    const hash = (s) => crypto.createHash('sha256').update(s).digest('hex');
+    const now = new Date();
+    const amzdate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
+    const datestamp = amzdate.slice(0, 8);
+    const region = 'us-east-1';
+    const payloadHash = hash(body);
+    const canonicalUri = '/' + bucket + '/' + key;
+    const canonicalHeaders = 'host:' + host + '\n' + 'x-amz-content-sha256:' + payloadHash + '\n' + 'x-amz-date:' + amzdate + '\n';
+    const signedHeaders = 'host;x-amz-content-sha256;x-amz-date';
+    const canonicalRequest = [method, canonicalUri, '', canonicalHeaders, signedHeaders, payloadHash].join('\n');
+    const scope = datestamp + '/' + region + '/s3/aws4_request';
+    const stringToSign = ['AWS4-HMAC-SHA256', amzdate, scope, hash(canonicalRequest)].join('\n');
+    let signingKey = hmac('AWS4' + secretKey, datestamp);
+    signingKey = hmac(signingKey, region);
+    signingKey = hmac(signingKey, 's3');
+    signingKey = hmac(signingKey, 'aws4_request');
+    const signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
+    const authorization = 'AWS4-HMAC-SHA256 Credential=' + accessKey + '/' + scope + ', SignedHeaders=' + signedHeaders + ', Signature=' + signature;
+    const req = https.request({
+      host, method, path: canonicalUri,
+      headers: {
+        'x-amz-date': amzdate,
+        'x-amz-content-sha256': payloadHash,
+        Authorization: authorization,
+        'Content-Length': Buffer.byteLength(body),
+      },
+    }, (res) => {
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => {
+        console.log(String(res.statusCode));
+        if (data) console.log(data);
+        process.exit(res.statusCode >= 200 && res.statusCode < 300 ? 0 : 1);
+      });
+    });
+    req.on('error', (err) => { console.error(err.message); process.exit(1); });
+    if (body) req.write(body);
+    req.end();

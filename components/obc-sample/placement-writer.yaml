@@ -1,0 +1,18 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: obc-sample-writer
+  namespace: openshift-gitops
+  labels:
+    app: obc-sample
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  clusterSets:
+    - aro-clusters
+  numberOfClusters: 1
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            name: primary-cluster

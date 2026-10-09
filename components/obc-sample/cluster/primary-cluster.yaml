@@ -1,0 +1,5 @@
+name: primary-cluster
+s3Host: s3-openshift-storage.apps.rjdgl4mo.eastus.aroapp.io
+peerEndpoint: https://s3-openshift-storage.apps.t5sb7f8f.centralus.aroapp.io
+destinationBucket: obc-sample-to-secondary
+replicationPolicy: '{"rules":[{"rule_id":"to-peer","destination_bucket":"obc-sample-to-secondary","filter":{"prefix":""}}]}'

@@ -1,0 +1,9 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: obc-sample
+spec:
+  bucketName: obc-sample
+  storageClassName: openshift-storage.noobaa.io
+  additionalConfig:
+    replicationPolicy: placeholder

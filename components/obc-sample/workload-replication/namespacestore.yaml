@@ -1,0 +1,17 @@
+# Secret obc-sample-peer-s3 is not in git. Copy AWS_ACCESS_KEY_ID and
+# AWS_SECRET_ACCESS_KEY from the peer cluster's obc-sample Secret into
+# this namespace before this NamespaceStore can become Ready.
+apiVersion: noobaa.io/v1alpha1
+kind: NamespaceStore
+metadata:
+  name: obc-sample-peer
+  namespace: openshift-storage
+spec:
+  type: s3-compatible
+  s3Compatible:
+    endpoint: https://placeholder.invalid
+    signatureVersion: v4
+    targetBucket: obc-sample
+    secret:
+      name: obc-sample-peer-s3
+      namespace: openshift-storage

@@ -1,0 +1,56 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: obc-sample-bucket
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  goTemplate: true
+  generators:
+    - merge:
+        mergeKeys:
+          - name
+        generators:
+          - clusterDecisionResource:
+              configMapRef: acm-placement
+              labelSelector:
+                matchLabels:
+                  cluster.open-cluster-management.io/placement: obc-sample-buckets
+              requeueAfterSeconds: 30
+          - git:
+              repoURL: https://github.com/trevorbox/odf.git
+              revision: HEAD
+              requeueAfterSeconds: 30
+              files:
+                - path: components/obc-sample/cluster/*.yaml
+  template:
+    metadata:
+      name: obc-sample-bucket-{{.name}}
+      labels:
+        app: obc-sample
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/trevorbox/odf.git
+        targetRevision: HEAD
+        path: components/obc-sample/workload-bucket
+        kustomize:
+          patches:
+            - target:
+                kind: ObjectBucketClaim
+                name: obc-sample
+              patch: |-
+                - op: replace
+                  path: /spec/additionalConfig/replicationPolicy
+                  value: {{.replicationPolicy | quote}}
+      destination:
+        server: "{{.server}}"
+        namespace: obc-sample
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true

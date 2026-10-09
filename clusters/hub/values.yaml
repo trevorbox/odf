@@ -126,3 +126,13 @@ applications:
         kind: DRPlacementControl
         jsonPointers:
           - /metadata/labels/cluster.open-cluster-management.io~1backup
+
+  obc-sample:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '72'
+    autoSyncPrune: true
+    destination:
+      namespace: openshift-gitops
+    source:
+      path: clusters/hub/overlays/obc-sample

@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: obc-sample
+  labels:
+    app: obc-sample
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: obc-sample
+  template:
+    metadata:
+      labels:
+        app: obc-sample
+    spec:
+      containers:
+        - name: writer
+          image: registry.redhat.io/odf4/mcg-core-rhel9@sha256:e636b41e50ba57e7b58b8d43399133778a0c2a75e6aac9725098290c0a4c9ff5
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -eu
+              while true; do
+                BODY="heartbeat $(date -Iseconds)" METHOD=PUT KEY=heartbeat.txt BUCKET=obc-sample node /scripts/s3.js
+                sleep 30
+              done
+          env:
+            - name: S3_HOST
+              value: placeholder
+          envFrom:
+            - secretRef:
+                name: obc-sample
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: 25m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: scripts
+          configMap:
+            name: s3-client
