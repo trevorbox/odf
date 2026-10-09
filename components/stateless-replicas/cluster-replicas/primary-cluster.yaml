@@ -1,0 +1,2 @@
+name: primary-cluster
+replicas: 1

@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: replicas-sample
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  goTemplate: true
+  generators:
+    - merge:
+        mergeKeys:
+          - name
+        generators:
+          - clusterDecisionResource:
+              configMapRef: acm-placement
+              labelSelector:
+                matchLabels:
+                  cluster.open-cluster-management.io/placement: stateless-replicas-placement
+              requeueAfterSeconds: 30
+          - git:
+              repoURL: https://github.com/trevorbox/odf.git
+              revision: HEAD
+              requeueAfterSeconds: 30
+              files:
+                - path: components/stateless-replicas/cluster-replicas/*.yaml
+  template:
+    metadata:
+      name: replicas-sample-{{.name}}
+      labels:
+        app: replicas-sample
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/trevorbox/odf.git
+        targetRevision: HEAD
+        path: components/stateless-replicas/workload-sample
+      destination:
+        server: "{{.server}}"
+        namespace: replicas-sample
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
+  templatePatch: |
+    spec:
+      source:
+        kustomize:
+          replicas:
+            - name: replicas-sample
+              count: {{.replicas}}
