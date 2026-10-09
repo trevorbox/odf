@@ -1,5 +1,7 @@
 # Hub application examples
 
+> Note: this builds on top of the example [Deploying Advanced Cluster Management and OpenShift Data Foundation for ARO Disaster Recovery](https://cloud.redhat.com/experts/aro/acm-odf-aro/) with applications to try out. I did not test out private cluster with VNET peering.
+
 Hub GitOps is the app-of-apps chart in `values.yaml`. Managed clusters are `primary-cluster` (East US) and `secondary-cluster` (Central US), in ManagedClusterSet `aro-clusters`.
 
 OpenShift GitOps reads PlacementDecisions only in `openshift-gitops` (`acm-placement`). Any Placement that an ApplicationSet follows has to live in that namespace.
