@@ -1,0 +1,11 @@
+apiVersion: velero.io/v1
+kind: Restore
+metadata:
+  name: discovered-stateless
+  namespace: openshift-adp
+  labels:
+    app: discovered-stateless
+spec:
+  scheduleName: discovered-stateless
+  includedNamespaces:
+    - discovered-stateless

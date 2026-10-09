@@ -1,0 +1,32 @@
+apiVersion: oadp.openshift.io/v1alpha1
+kind: DataProtectionApplication
+metadata:
+  name: velero
+  namespace: openshift-adp
+  labels:
+    app.kubernetes.io/component: velero
+spec:
+  backupImages: false
+  configuration:
+    nodeAgent:
+      enable: false
+    velero:
+      defaultPlugins:
+        - openshift
+        - aws
+  backupLocations:
+    - name: discovered-stateless
+      velero:
+        provider: aws
+        default: true
+        credential:
+          name: discovered-stateless-s3
+          key: cloud
+        objectStorage:
+          bucket: REPLACE_ME
+          prefix: discovered-stateless
+        config:
+          region: us-east-1
+          profile: default
+          s3ForcePathStyle: "true"
+          s3Url: https://REPLACE_ME

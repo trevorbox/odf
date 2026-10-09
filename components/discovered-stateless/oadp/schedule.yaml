@@ -1,0 +1,17 @@
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: discovered-stateless
+  namespace: openshift-adp
+  labels:
+    app: discovered-stateless
+spec:
+  schedule: "*/5 * * * *"
+  template:
+    includedNamespaces:
+      - discovered-stateless
+    labelSelector:
+      matchLabels:
+        app: discovered-stateless
+    storageLocation: discovered-stateless
+    ttl: 24h0m0s

@@ -18,6 +18,8 @@ Docs: [Regional-DR for OpenShift Data Foundation 4.20](https://docs.redhat.com/e
 
 The console Failover and Relocate actions edit `DRPlacementControl.spec.action`. These hub apps use selfHeal, so a console edit is overwritten unless the same field is in Git. Ramen sets `cluster.open-cluster-management.io/backup=ramen` on the DRPlacementControl; the apps ignore that label.
 
+Velero (the OADP operator) is not what recreates a managed application. A managed application already has an RHACM Subscription or an Argo CD Application, and that controller reapplies the Deployment from Git. A discovered application has neither, so moving it means restoring a Velero backup. `discovered-stateless` keeps that backup in an S3 bucket configured on the DataProtectionApplication, outside either cluster, and does not use ODF. The PVC samples still store volume metadata in the Ramen bucket `odrbucket-5da59541d2f3` on Multicloud Object Gateway. Those volume bytes move by RBD mirroring.
+
 ## stateless-sample and stateless-echo
 
 No storage and no ODF. One Placement, `stateless-sample-placement` (`numberOfClusters: 1`), and two ApplicationSets that watch it. Changing the Placement moves both apps.
@@ -115,3 +117,44 @@ Move back:
 Secret `obc-sample-peer-s3` in `openshift-storage` on each cluster holds the peer bucket keys. It is created from the peer ObjectBucketClaim secret and is not in Git.
 
 Features: RHACM Placement and ApplicationSets for the buckets (both clusters) and the writer (one cluster). NooBaa NamespaceStore and [MCG bucket replication](https://docs.redhat.com/en/documentation/red_hat_openshift_data_foundation/4.20/html/managing_hybrid_and_multicloud_resources/multicloud_object_gateway_bucket_replication). No DRPolicy and no console Failover button.
+
+## discovered-stateless
+
+No volume, no ODF, and no GitOps deploy of the workload. The Deployment is applied on `primary-cluster` only. There is no RHACM Subscription, no Argo CD Application, and no DRPlacementControl. Velero is necessary because the application is discovered: nothing else has a copy of the Deployment.
+
+S3 is set on the DataProtectionApplication `velero` in `openshift-adp` on each managed cluster (`spec.backupLocations`). That creates a Velero `BackupStorageLocation` of the same name, `discovered-stateless`. The credentials are Secret `discovered-stateless-s3`, key `cloud`, in that same namespace. The bucket has to live outside both clusters (Azure Blob, AWS, or another S3 API). A bucket on either cluster's Multicloud Object Gateway would disappear with that cluster.
+
+Fill in `bucket` and `s3Url` in `components/discovered-stateless/oadp/dataprotectionapplication.yaml`. Create the same Secret on both clusters from a file in this form, and do not commit it:
+
+```ini
+[default]
+aws_access_key_id=REPLACE_ME
+aws_secret_access_key=REPLACE_ME
+```
+
+```bash
+oc --context primary apply -k components/discovered-stateless/workload
+oc --context primary -n openshift-adp create secret generic discovered-stateless-s3 --from-file cloud=./cloud
+oc --context secondary -n openshift-adp create secret generic discovered-stateless-s3 --from-file cloud=./cloud
+oc --context primary apply -f components/discovered-stateless/oadp/dataprotectionapplication.yaml
+oc --context secondary apply -f components/discovered-stateless/oadp/dataprotectionapplication.yaml
+oc --context primary apply -f components/discovered-stateless/oadp/schedule.yaml
+```
+
+Install OADP 1.4 or newer into `openshift-adp` on both clusters before applying the DataProtectionApplication. The Schedule runs only on primary and uploads every 5 minutes.
+
+Failover:
+
+1. Wait until a Backup from Schedule `discovered-stateless` is `Completed` (`oc --context primary get backup -n openshift-adp`).
+2. On `secondary-cluster`, apply `components/discovered-stateless/oadp/restore.yaml`. Velero reads the latest backup of that Schedule from the shared bucket, creates the `discovered-stateless` namespace, and restores the Deployment into it.
+3. Delete the Deployment on `primary-cluster`.
+
+Move back:
+
+1. Apply `schedule.yaml` on `secondary-cluster` and delete it on `primary-cluster`, so the next backup includes objects written after failover.
+2. Wait for a Completed Backup, then apply `restore.yaml` on `primary-cluster`. Give that Restore a new name if one is already there.
+3. Delete the Deployment on `secondary-cluster`, and move the Schedule back to primary.
+
+Features: OADP DataProtectionApplication, BackupStorageLocation, Schedule, and Restore. No DRPolicy, no console Failover button, no ODF.
+
+Docs: [OADP backup location](https://docs.redhat.com/en/documentation/openshift_container_platform/4.16/html/backup_and_restore/oadp-installing#oadp-about-backup-and-snapshot-locations_installing-oadp-on-ocp).
