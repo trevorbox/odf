@@ -35,6 +35,15 @@ spec:
         repoURL: https://github.com/trevorbox/odf.git
         targetRevision: HEAD
         path: components/stateless-replicas/workload-echo
+        kustomize:
+          patches:
+            - target:
+                kind: Deployment
+                name: replicas-echo
+              patch: |-
+                - op: replace
+                  path: /spec/replicas
+                  value: {{.replicas}}
       destination:
         server: "{{.server}}"
         namespace: replicas-echo
@@ -45,10 +54,3 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - PruneLast=true
-  templatePatch: |
-    spec:
-      source:
-        kustomize:
-          replicas:
-            - name: replicas-echo
-              count: {{.replicas}}

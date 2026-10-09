@@ -35,6 +35,15 @@ spec:
         repoURL: https://github.com/trevorbox/odf.git
         targetRevision: HEAD
         path: components/stateless-replicas/workload-sample
+        kustomize:
+          patches:
+            - target:
+                kind: Deployment
+                name: replicas-sample
+              patch: |-
+                - op: replace
+                  path: /spec/replicas
+                  value: {{.replicas}}
       destination:
         server: "{{.server}}"
         namespace: replicas-sample
@@ -45,10 +54,3 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - PruneLast=true
-  templatePatch: |
-    spec:
-      source:
-        kustomize:
-          replicas:
-            - name: replicas-sample
-              count: {{.replicas}}
