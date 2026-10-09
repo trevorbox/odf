@@ -18,14 +18,14 @@ applications:
     source:
       path: clusters/hub/overlays/acm-configuration         
 
-  odf-multicluster-orchestrator:
-    annotations:
-      argocd.argoproj.io/compare-options: IgnoreExtraneous
-      argocd.argoproj.io/sync-wave: '20'
-    destination:
-      namespace: odf-multicluster-orchestrator
-    source:
-      path: clusters/hub/overlays/odf-multicluster-orchestrator
+  # odf-multicluster-orchestrator:
+  #   annotations:
+  #     argocd.argoproj.io/compare-options: IgnoreExtraneous
+  #     argocd.argoproj.io/sync-wave: '20'
+  #   destination:
+  #     namespace: odf-multicluster-orchestrator
+  #   source:
+  #     path: clusters/hub/overlays/odf-multicluster-orchestrator
 
   managedclusterset:
     annotations:
