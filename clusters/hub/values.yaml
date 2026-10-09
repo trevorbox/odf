@@ -102,8 +102,9 @@ applications:
     annotations:
       argocd.argoproj.io/compare-options: IgnoreExtraneous
       argocd.argoproj.io/sync-wave: '70'
+    autoSyncPrune: true
     destination:
-      namespace: busybox-sample
+      namespace: openshift-gitops
     source:
       path: clusters/hub/overlays/busybox-sample
 

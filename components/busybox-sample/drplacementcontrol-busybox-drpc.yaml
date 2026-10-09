@@ -2,7 +2,7 @@ apiVersion: ramendr.openshift.io/v1alpha1
 kind: DRPlacementControl
 metadata:
   name: busybox-drpc
-  namespace: busybox-sample
+  namespace: openshift-gitops
   labels:
     app: busybox-sample
     cluster.open-cluster-management.io/backup: resource
