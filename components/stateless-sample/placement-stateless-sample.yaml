@@ -15,4 +15,4 @@ spec:
     - requiredClusterSelector:
         labelSelector:
           matchLabels:
-            name: secondary-cluster
+            name: primary-cluster
