@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ./configmap-acm-placement.yaml
+  - ./clusterrole-openshift-gitops-acm-placement.yaml
+  - ./clusterrolebinding-openshift-gitops-acm-placement.yaml
+  - ./managedclustersetbinding-aro-clusters.yaml
+  - ./placement-aro-clusters-gitops.yaml
+  - ./managedclusteraddon-managed-serviceaccount-primary.yaml
+  - ./managedclusteraddon-managed-serviceaccount-secondary.yaml
+  - ./gitopscluster-openshift-gitops.yaml

@@ -59,3 +59,39 @@ applications:
       namespace: open-cluster-management
     source:
       path: components/submariner
+
+  acm-gitops:
+    annotations:
+      argocd.argoproj.io/compare-options: IgnoreExtraneous
+      argocd.argoproj.io/sync-wave: '55'
+    destination:
+      namespace: openshift-gitops
+    source:
+      path: clusters/hub/overlays/acm-gitops
+
+  # stateless-sample:
+  #   annotations:
+  #     argocd.argoproj.io/compare-options: IgnoreExtraneous
+  #     argocd.argoproj.io/sync-wave: '58'
+  #   destination:
+  #     namespace: stateless-sample
+  #   source:
+  #     path: clusters/hub/overlays/stateless-sample
+
+  # drpolicy:
+  #   annotations:
+  #     argocd.argoproj.io/compare-options: IgnoreExtraneous
+  #     argocd.argoproj.io/sync-wave: '60'
+  #   destination:
+  #     namespace: openshift-gitops
+  #   source:
+  #     path: clusters/hub/overlays/drpolicy
+
+  # busybox-sample:
+  #   annotations:
+  #     argocd.argoproj.io/compare-options: IgnoreExtraneous
+  #     argocd.argoproj.io/sync-wave: '70'
+  #   destination:
+  #     namespace: busybox-sample
+  #   source:
+  #     path: clusters/hub/overlays/busybox-sample

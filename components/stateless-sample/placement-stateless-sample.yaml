@@ -1,0 +1,18 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: stateless-sample-placement
+  namespace: stateless-sample
+  labels:
+    app: stateless-sample
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  clusterSets:
+    - aro-clusters
+  numberOfClusters: 1
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            name: primary-cluster

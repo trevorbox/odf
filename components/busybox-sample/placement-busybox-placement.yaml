@@ -1,0 +1,28 @@
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: busybox-placement
+  namespace: busybox-sample
+  labels:
+    app: busybox-sample
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    cluster.open-cluster-management.io/experimental-scheduling-disable: "true"
+spec:
+  clusterSets:
+    - aro-clusters
+  numberOfClusters: 1
+  tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchExpressions:
+            - key: name
+              operator: In
+              values:
+                - primary-cluster
+                - secondary-cluster

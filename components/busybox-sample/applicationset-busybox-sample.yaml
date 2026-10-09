@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: busybox-sample
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  generators:
+    - clusterDecisionResource:
+        configMapRef: acm-placement
+        labelSelector:
+          matchLabels:
+            cluster.open-cluster-management.io/placement: busybox-placement
+        requeueAfterSeconds: 30
+  template:
+    metadata:
+      name: busybox-sample-{{name}}
+      labels:
+        app: busybox-sample
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/RamenDR/ocm-ramen-samples.git
+        targetRevision: main
+        path: workloads/deployment/odr-regional-rbd
+      destination:
+        server: "{{server}}"
+        namespace: busybox-sample
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true

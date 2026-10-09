@@ -1,0 +1,16 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openshift-gitops-acm-placement
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+rules:
+  - apiGroups:
+      - cluster.open-cluster-management.io
+    resources:
+      - placements
+      - placementdecisions
+    verbs:
+      - get
+      - list
+      - watch

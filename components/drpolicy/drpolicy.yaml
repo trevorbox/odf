@@ -1,0 +1,9 @@
+apiVersion: ramendr.openshift.io/v1alpha1
+kind: DRPolicy
+metadata:
+  name: drpolicy
+spec:
+  drClusters:
+    - primary-cluster
+    - secondary-cluster
+  schedulingInterval: 5m
