@@ -24,7 +24,12 @@ Failover:
 
 1. In `components/stateless-sample/placement-stateless-sample.yaml`, set `matchLabels.name` to `secondary-cluster`.
 2. Sync hub app `stateless-sample`.
-3. ACM writes a new PlacementDecision. Argo CD prunes the apps on the old cluster and creates them on the new one.
+3. ACM writes a new PlacementDecision. Argo CD prunes both apps on `primary-cluster` and creates them on `secondary-cluster`.
+
+Move back:
+
+1. Set `matchLabels.name` back to `primary-cluster`.
+2. Sync hub app `stateless-sample`. Argo CD prunes both apps on `secondary-cluster` and creates them on `primary-cluster`.
 
 Features: RHACM Placement, ManagedClusterSet, OpenShift GitOps `clusterDecisionResource`. There is no DRPlacementControl and no console Failover button.
 
@@ -36,7 +41,12 @@ No storage. Placement `stateless-replicas-placement` keeps both clusters selecte
 
 Failover:
 
-1. Set `replicas: 0` for `primary-cluster` and `replicas: 1` for `secondary-cluster` in those files.
+1. In `components/stateless-replicas/cluster-replicas/`, set `replicas: 0` in `primary-cluster.yaml` and `replicas: 1` in `secondary-cluster.yaml`.
+2. Sync hub app `stateless-replicas`. The Deployments stay on both clusters. Primary scales to 0 and secondary scales to 1.
+
+Move back:
+
+1. Set `replicas: 1` in `primary-cluster.yaml` and `replicas: 0` in `secondary-cluster.yaml`.
 2. Sync hub app `stateless-replicas`.
 
 The count is applied with a Kustomize JSON patch. `source.kustomize.replicas.count` on this GitOps version is rendered as 0.
@@ -66,7 +76,19 @@ Features: MirrorPeer, DRPolicy, DRCluster, DRPlacementControl, RBD mirroring, Pl
 
 Same workload and the same `drpolicy`, deployed with an RHACM Subscription instead of an ApplicationSet. Channel, Subscription, PlacementRule (`schedulerName: ramen`), and DRPlacementControl all live in `busybox-subscription`. The PlacementRule and the DRPlacementControl must share that namespace.
 
-Failover and relocate use the same `spec.action` values as `busybox-sample`, on `components/busybox-subscription/drplacementcontrol.yaml`. RHACM deploys the Subscription to the cluster Ramen selects. There is no ApplicationSet.
+Failover:
+
+1. Set `spec.action: Failover` on `components/busybox-subscription/drplacementcontrol.yaml`.
+2. Sync hub app `busybox-subscription`. Ramen moves the PlacementRule decision to `secondary-cluster`, and the Subscription deploys the workload there.
+3. Wait until `status.phase` is `FailedOver`.
+
+Move back:
+
+1. Set `spec.action: Relocate`.
+2. Sync hub app `busybox-subscription`. Ramen returns the workload to `primary-cluster`.
+3. When `status.phase` is `Relocated`, delete `spec.action` and sync.
+
+Clearing `action` while the phase is still `FailedOver` leaves the workload on `secondary-cluster`. There is no ApplicationSet.
 
 Features: RHACM Application, Channel, Subscription, and PlacementRule, plus the same ODF DR objects as `busybox-sample`.
 
@@ -80,7 +102,13 @@ Failover:
 
 1. In `components/obc-sample/placement-writer.yaml`, set `matchLabels.name` to `secondary-cluster`.
 2. Sync hub app `obc-sample`.
-3. The writer Deployment is pruned from primary and started on secondary. It reads and writes secondary's local bucket, which already has the replicated objects.
+3. Argo CD prunes the writer on `primary-cluster` and starts it on `secondary-cluster`. It uses secondary's local `obc-sample` bucket. Objects already copied from primary are there. New writes on secondary are copied to primary by the rule whose destination is `obc-sample-to-primary`.
+
+Move back:
+
+1. Set `matchLabels.name` back to `primary-cluster`.
+2. Sync hub app `obc-sample`. Argo CD prunes the writer on `secondary-cluster` and starts it on `primary-cluster`.
+3. The writer uses primary's local bucket. Objects written while it ran on secondary are already being copied there. The copy is asynchronous, so the newest object can still be in flight for one replication pass.
 
 Secret `obc-sample-peer-s3` in `openshift-storage` on each cluster holds the peer bucket keys. It is created from the peer ObjectBucketClaim secret and is not in Git.
 
