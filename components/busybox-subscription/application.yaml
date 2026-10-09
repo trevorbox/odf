@@ -1,0 +1,49 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: busybox-subscription
+  namespace: busybox-subscription
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  componentKinds:
+    - group: apps.open-cluster-management.io
+      kind: Subscription
+  descriptor: {}
+  selector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values:
+          - busybox-subscription
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Channel
+metadata:
+  name: busybox-subscription
+  namespace: busybox-subscription
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    apps.open-cluster-management.io/reconcile-rate: medium
+spec:
+  type: Git
+  pathname: https://github.com/RamenDR/ocm-ramen-samples
+---
+apiVersion: apps.open-cluster-management.io/v1
+kind: Subscription
+metadata:
+  name: busybox-subscription-subscription-1
+  namespace: busybox-subscription
+  labels:
+    app: busybox-subscription
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+    apps.open-cluster-management.io/git-branch: main
+    apps.open-cluster-management.io/git-path: workloads/deployment/odr-regional-rbd
+    apps.open-cluster-management.io/reconcile-option: merge
+spec:
+  channel: busybox-subscription/busybox-subscription
+  placement:
+    placementRef:
+      kind: PlacementRule
+      name: busybox-subscription-placementrule

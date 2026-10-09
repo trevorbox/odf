@@ -1,0 +1,22 @@
+apiVersion: ramendr.openshift.io/v1alpha1
+kind: DRPlacementControl
+metadata:
+  name: busybox-subscription-drpc
+  namespace: busybox-subscription
+  labels:
+    app: busybox-subscription
+    cluster.open-cluster-management.io/backup: resource
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  preferredCluster: primary-cluster
+  failoverCluster: secondary-cluster
+  drPolicyRef:
+    name: drpolicy
+  placementRef:
+    kind: PlacementRule
+    name: busybox-subscription-placementrule
+    namespace: busybox-subscription
+  pvcSelector:
+    matchLabels:
+      appname: busybox
