@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - ./placement-stateless-sample.yaml
   - ./applicationset-stateless-sample.yaml
+  - ./applicationset-stateless-echo.yaml

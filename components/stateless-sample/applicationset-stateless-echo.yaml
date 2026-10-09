@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: stateless-echo
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  generators:
+    - clusterDecisionResource:
+        configMapRef: acm-placement
+        labelSelector:
+          matchLabels:
+            cluster.open-cluster-management.io/placement: stateless-sample-placement
+        requeueAfterSeconds: 30
+  template:
+    metadata:
+      name: stateless-echo-{{name}}
+      labels:
+        app: stateless-echo
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/trevorbox/odf.git
+        targetRevision: HEAD
+        path: components/stateless-sample/workload-echo
+      destination:
+        server: "{{server}}"
+        namespace: stateless-echo
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - PruneLast=true
