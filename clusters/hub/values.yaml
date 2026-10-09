@@ -73,8 +73,9 @@ applications:
     annotations:
       argocd.argoproj.io/compare-options: IgnoreExtraneous
       argocd.argoproj.io/sync-wave: '58'
+    autoSyncPrune: true
     destination:
-      namespace: stateless-sample
+      namespace: openshift-gitops
     source:
       path: clusters/hub/overlays/stateless-sample
 

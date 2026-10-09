@@ -1,9 +1,0 @@
-apiVersion: cluster.open-cluster-management.io/v1beta2
-kind: ManagedClusterSetBinding
-metadata:
-  name: aro-clusters
-  namespace: stateless-sample
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
-spec:
-  clusterSet: aro-clusters

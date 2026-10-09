@@ -16,7 +16,7 @@ spec:
   placementRef:
     kind: Placement
     name: busybox-placement
-    namespace: busybox-sample
+    namespace: openshift-gitops
   pvcSelector:
     matchLabels:
       appname: busybox

@@ -2,7 +2,7 @@ apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
   name: stateless-sample-placement
-  namespace: stateless-sample
+  namespace: openshift-gitops
   labels:
     app: stateless-sample
   annotations:
